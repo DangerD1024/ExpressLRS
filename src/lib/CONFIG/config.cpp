@@ -281,6 +281,7 @@ void TxConfig::UpgradeEepromV6ToV7()
     LAZY(dvrAux);
     LAZY(dvrStartDelay);
     LAZY(dvrStopDelay);
+    LAZY(Domain);
     #undef LAZY
 
     for (unsigned i=0; i<64; i++)
@@ -340,6 +341,7 @@ TxConfig::Commit()
         nvs_set_u8(handle, "dvraux", m_config.dvrAux);
         nvs_set_u8(handle, "dvrstartdelay", m_config.dvrStartDelay);
         nvs_set_u8(handle, "dvrstopdelay", m_config.dvrStopDelay);
+        nvs_set_u8(handle, "domain", m_config.Domain);
     }
     if (m_modified & BUTTON_CHANGED)
     {
@@ -591,6 +593,7 @@ TxConfig::SetDefaults(bool commit)
 
     m_config.version = TX_CONFIG_VERSION | TX_CONFIG_MAGIC;
     m_config.powerFanThreshold = PWR_250mW;
+    m_config.Domain = 4;
     m_modified = ALL_CHANGED;
 
     if (commit)
@@ -669,6 +672,14 @@ TxConfig::SetModelId(uint8_t modelId)
     }
 
     return false;
+}
+
+void TxConfig::SetDomain(uint8_t domain)
+{
+    if (m_config.Domain != domain) {
+        m_config.Domain = domain;
+        m_modified |= MAIN_CHANGED;
+    }
 }
 #endif
 

@@ -35,6 +35,7 @@ __attribute__ ((used)) static firmware_options_t flashedOptions = {
 #if defined(Regulatory_Domain_ISM_2400)
     .domain = 0,
 #else
+#if 0
     #if defined(Regulatory_Domain_AU_915)
     .domain = 0,
     #elif defined(Regulatory_Domain_FCC_915)
@@ -50,6 +51,8 @@ __attribute__ ((used)) static firmware_options_t flashedOptions = {
     #else
     #error No regulatory domain defined, please define one in user_defines.txt
     #endif
+#endif
+    .domain = 4, // overwrite
 #endif
 #if defined(MY_UID)
     .hasUID = true,

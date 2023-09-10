@@ -7,6 +7,7 @@ return {
       {name='Max Power', id=5, type=9, parent=4, values={'10','25','50'}, value=2, unit='mW'},
       {name='Dynamic', id=6, type=9, parent=4, values={'Off','On','AUX9'}, value=1, unit=''},
       {name='Fan Thresh', id=6, type=9, parent=4, values={'10mW','25mW','50mW', '250mW'}, value=3, unit=''},
+    {name='Domain', id=5, type=9, values={'755-805', '825-925','900-925','900-950','950-990','990-1020'}, value=2, unit='MGz'},
     {name='VTX Administrator', id=7, type=11},
       {name='Band', id=8, type=9, parent=7, values={'Off', 'A', 'B', 'F', 'R', 'L'}, value=0, unit=''},
       {name='Channel', id=9, type=9, parent=7, values={'1', '2', '3', '4' }, value=0, unit=''},
@@ -17,6 +18,5 @@ return {
     {name='Wifi Update', id=9, type=13},
     {name='BLE Joystick', id=10, type=13},
     {name='master', id=11, type=12, value='f00fcb'},
-
-    {name="----BACK----", id=12, type=14, parent=255}
+    {name="----BACK----", id=13, type=14, parent=255}
   }

@@ -42,6 +42,9 @@ FIFO_GENERIC<AP_MAX_BUF_LEN> apOutputBuffer;
 unsigned long rebootTime = 0;
 extern bool webserverPreventAutoStart;
 #endif
+#ifdef PLATFORM_STM32
+unsigned long rebootTime = 0;
+#endif
 //// MSP Data Handling ///////
 bool NextPacketIsMspData = false;  // if true the next packet will contain the msp data
 char backpackVersion[32] = "";
@@ -1216,6 +1219,12 @@ void setup()
     devicesInit();
     DBGLN("Initialised devices");
 
+    eeprom.Begin(); // Init the eeprom
+    config.SetStorageProvider(&eeprom); // Pass pointer to the Config class for access to storage
+    config.Load(); // Load the stored values from eeprom
+#ifdef PLATFORM_STM32
+    firmwareOptions.domain = config.GetDomain();
+#endif
     FHSSrandomiseFHSSsequence(uidMacSeedGet());
 
     Radio.RXdoneCallback = &RXdoneISR;
@@ -1230,9 +1239,13 @@ void setup()
     hwTimer.callbackTock = &timerCallbackNormal;
     DBGLN("ExpressLRS TX Module Booted...");
 
-    eeprom.Begin(); // Init the eeprom
-    config.SetStorageProvider(&eeprom); // Pass pointer to the Config class for access to storage
-    config.Load(); // Load the stored values from eeprom
+    // eeprom.Begin(); // Init the eeprom
+    // config.SetStorageProvider(&eeprom); // Pass pointer to the Config class for access to storage
+    // config.Load(); // Load the stored values from eeprom
+    
+    // firmwareOptions.domain = config.GetDomain();
+    
+    // FHSSrandomiseFHSSsequence(uidMacSeedGet());
 
     Radio.currFreq = GetInitialFreq(); //set frequency first or an error will occur!!!
     #if defined(RADIO_SX127X)
@@ -1320,6 +1333,12 @@ void loop()
       ESP.restart();
     }
   #endif
+
+#ifdef PLATFORM_STM32
+    if (rebootTime != 0 && now > rebootTime) {
+      NVIC_SystemReset();
+    }
+#endif
 
   executeDeferredFunction(now);
 

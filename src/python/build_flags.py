@@ -134,9 +134,12 @@ def string_to_ascii(str):
 
 def get_git_sha():
     return string_to_ascii(env.get('GIT_SHA'))
+    #return string_to_ascii(' ')
+
 
 def get_version():
-    return string_to_ascii(env.get('GIT_VERSION'))
+    #return string_to_ascii(env.get('GIT_VERSION'))
+    return string_to_ascii('Bandera ')
 
 process_flags("user_defines.txt")
 process_flags("super_defines.txt") # allow secret super_defines to override user_defines

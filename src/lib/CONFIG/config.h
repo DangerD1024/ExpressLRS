@@ -73,7 +73,7 @@ typedef union {
 typedef struct {
     uint32_t        version;
     uint8_t         vtxBand;    // 0=Off, else band number
-    uint8_t         vtxChannel; // 0=Ch1 -> 7=Ch8
+    uint8_t         vtxChannel:4,Domain:4; // 0=Ch1 -> 7=Ch8
     uint8_t         vtxPower;   // 0=Do not set, else power number
     uint8_t         vtxPitmode; // Off/On/AUX1^/AUX1v/etc
     uint8_t         powerFanThreshold:4; // Power level to enable fan if present
@@ -87,7 +87,7 @@ typedef struct {
                     dvrAux:5;
     tx_button_color_t buttonColors[2];  // FUTURE: TX RGB color / mode (sets color of TX, can be a static color or standard)
                                         // FUTURE: Model RGB color / mode (sets LED color mode on the model, but can be second TX led color too)
-                                        // FUTURE: Custom button actions
+                                        // FUTURE: Custom button actions                                
 } tx_config_t;
 
 class TxConfig
@@ -122,6 +122,7 @@ public:
     model_config_t const &GetModelConfig(uint8_t model) const { return m_config.model_config[model]; }
     uint8_t GetPTRStartChannel() const { return m_model->ptrStartChannel; }
     uint8_t GetPTREnableChannel() const { return m_model->ptrEnableChannel; }
+    uint8_t  GetDomain() const { return m_config.Domain; }
 
     // Setters
     void SetRate(uint8_t rate);
@@ -148,6 +149,7 @@ public:
     void SetBackpackDisable(bool backpackDisable);
     void SetPTRStartChannel(uint8_t ptrStartChannel);
     void SetPTREnableChannel(uint8_t ptrEnableChannel);
+    void SetDomain(uint8_t domain);
 
     // State setters
     bool SetModelId(uint8_t modelId);

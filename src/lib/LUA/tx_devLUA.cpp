@@ -16,7 +16,7 @@
 
 extern char backpackVersion[];
 
-static char version_domain[20+1+6+1];
+static char version_domain[30+1+6+1];
 char pwrFolderDynamicName[] = "TX Power (1000 Dynamic)";
 char vtxFolderDynamicName[] = "VTX Admin (OFF:C:1 Aux11 )";
 static char modelMatchUnit[] = " (ID: 00)";
@@ -82,6 +82,13 @@ static struct luaItem_string luaCELimit = {
     STR_EMPTYSPACE
 };
 #endif
+
+static struct luaItem_selection luaDomain = {
+    {"Domain (TX)", CRSF_TEXT_SELECTION},
+    0, // value
+    "755-805MHz;755-855MHz;825-925MHz;900-925MHz;FCC915;900-950MHz;950-990MHz;990-1020MHz",
+    STR_EMPTYSPACE
+};
 
 //----------------------------POWER------------------
 
@@ -280,6 +287,9 @@ extern bool VRxBackpackWiFiReadyToSend;
 #if defined(PLATFORM_ESP32) || defined(PLATFORM_ESP8266)
 extern unsigned long rebootTime;
 extern void setWifiUpdateMode();
+#endif
+#ifdef PLATFORM_STM32
+extern unsigned long rebootTime;
 #endif
 
 static void luadevUpdateModelID() {
@@ -552,6 +562,7 @@ uint8_t adjustSwitchModeForAirRate(OtaSwitchMode_e eSwitchMode, uint8_t packetSi
   return eSwitchMode;
 }
 
+extern firmware_options_t firmwareOptions;
 static void registerLuaParameters()
 {
   if (HAS_RADIO) {
@@ -631,6 +642,20 @@ static void registerLuaParameters()
         luadevUpdateModelID();
       });
     }
+
+    // Domain
+    registerLUAParameter(&luaDomain, [](struct luaPropertiesCommon *item, uint8_t arg)
+    {
+#if defined(PLATFORM_ESP8266) || defined(PLATFORM_ESP32)
+      firmwareOptions.domain = arg;
+      saveOptions();
+      rebootTime = millis() + 400;
+#else
+     config.SetDomain(arg);
+     rebootTime = millis() + 400;
+#endif      
+    }
+    );
 
     // POWER folder
     registerLUAParameter(&luaPowerFolder);
@@ -753,7 +778,7 @@ static void registerLuaParameters()
     strlcat(version_domain, "... ", sizeof(version_domain));
   }
   strlcat(version_domain, FHSSconfig->domain, sizeof(version_domain));
-  registerLUAParameter(&luaELRSversion);
+  //registerLUAParameter(&luaELRSversion);
   registerLUAParameter(NULL);
 }
 
@@ -775,6 +800,13 @@ static int event()
   luadevUpdateModelID();
   setLuaTextSelectionValue(&luaModelMatch, (uint8_t)config.GetModelMatch());
   setLuaTextSelectionValue(&luaPower, config.GetPower() - MinPower);
+
+#if defined(PLATFORM_ESP8266) || defined(PLATFORM_ESP32)
+    setLuaTextSelectionValue(&luaDomain, firmwareOptions.domain);
+#else
+    setLuaTextSelectionValue(&luaDomain, (uint8_t)config.GetDomain());
+#endif
+  
   if (GPIO_PIN_FAN_EN != UNDEF_PIN || GPIO_PIN_FAN_PWM != UNDEF_PIN)
   {
     setLuaTextSelectionValue(&luaFanThreshold, config.GetPowerFanThreshold());
